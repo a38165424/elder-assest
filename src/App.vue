@@ -1,6 +1,4 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import Form from "./views/Home.vue"
 //import JSON from './components/JSON.vue'
 import BHeader from './components/BHeader.vue'
 

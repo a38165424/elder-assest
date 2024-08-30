@@ -1,21 +1,25 @@
 <template>
-  <div class="container mt-5">
+  <div class="container-fluid mt-5"> <!-- Changed from .container to .container-fluid for full-width responsiveness -->
     <h1 class="text-center">Administer Page</h1>
     <div v-if="isAdmin">
-      <p>Welcome, Admin! You have full access to this page.</p>
-      <DataTable v-if="submittedCards.length" :value="submittedCards" class="mt-5">
-        <Column field="username" header="Username"></Column>
-        <Column field="password" header="Password"></Column>
-        <Column field="role" header="Role"></Column>
-        <Column field="gender" header="Gender"></Column>
-        <Column header="Actions">
-          <template #body="slotProps">
-            <button class="btn btn-danger" @click="deleteUser(slotProps.data.username)">
-              Delete
-            </button>
-          </template>
-        </Column>
-      </DataTable>
+      <p>Welcome, Admin! You can  access and delete user in this page.</p>
+      <div class="row justify-content-center"> <!-- Added row for grid system -->
+        <div class="col-12 col-md-10 col-lg-8"> <!-- Adjusted column widths for different screen sizes -->
+          <DataTable v-if="submittedCards.length" :value="submittedCards" class="mt-5">
+            <Column field="username" header="Username"></Column>
+            <Column field="password" header="Password"></Column>
+            <Column field="role" header="Role"></Column>
+            <Column field="gender" header="Gender"></Column>
+            <Column header="Actions">
+              <template #body="slotProps">
+                <button class="btn btn-danger" @click="deleteUser(slotProps.data.username)">
+                  Delete
+                </button>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </div>
     </div>
     <div v-else>
       <p>You are not an admin. You do not have permission to view this content.</p>
@@ -47,9 +51,8 @@ onMounted(() => {
 
 // Cleanup states or listeners when leaving the page
 onBeforeUnmount(() => {
-  // Reset states, clear intervals, event listeners, etc.
   submittedCards.value = [];
-  console.log('Cleaning up Administor component...');
+  console.log('Cleaning up Administer component...');
 });
 
 // Function to load user data from localStorage
@@ -74,7 +77,7 @@ const loadUserData = () => {
     }
   });
   submittedCards.value = users;
-  console.log('Loaded users:', submittedCards.value); // Log the loaded users
+  console.log('Loaded users:', submittedCards.value);
 };
 
 // Function to delete a user
@@ -86,15 +89,15 @@ const deleteUser = (username) => {
 </script>
 
 <script>
-// Ensure navigation away from Administor is handled correctly
+// Ensure navigation away from Administer is handled correctly
 export default {
   beforeRouteLeave(_, __, next) {
-    console.log('Leaving Administor...');
+    console.log('Leaving Administer...');
 
     // Use setTimeout to allow the next route to be fully processed before reloading
     next(); // Allow the navigation
     setTimeout(() => {
-      if (window.location.pathname !== '/Administor') {
+      if (window.location.pathname !== '/Administer') {
         window.location.reload(); // Refresh the page only after navigating away
       }
     }, 10);
@@ -103,13 +106,11 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  max-width: 800px;
-  margin: 0 auto;
+.container-fluid {
+  width: 100%;
+  max-width: 100%; /* Ensure full width */
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #f9f9f9;
+  margin: 0 auto;
 }
 
 h1 {
@@ -134,6 +135,20 @@ button.btn-danger {
 
 button.btn-danger:hover {
   background-color: #c9302c;
+}
+
+.row {
+  width: 100%; /* Ensures row spans full width */
+}
+
+.col-12 {
+  max-width: 100%; /* Ensures columns use full width on small screens */
+}
+
+.auth-container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
 }
 </style>
 

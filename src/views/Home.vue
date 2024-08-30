@@ -4,7 +4,7 @@
       Welcome to our home!
     </p>
   </div>
-  <div class="container mt-5">
+  <div class="container-fluid mt-5"> 
     <div v-if="loggedInUser" class="row justify-content-center mb-3">
       <div class="col-auto d-flex align-items-center">
         <span class="welcome-message">Welcome, {{ loggedInUser }}</span>
@@ -13,7 +13,7 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="col-md-6">
+      <div class="col-12 col-md-8 col-lg-4"> 
         <div class="auth-container p-4 shadow-sm rounded">
           <h1 class="text-center mb-4">{{ isLoginMode ? 'Login' : 'User Information Form' }}</h1>
           <form @submit.prevent="submitForm">
@@ -43,7 +43,6 @@
               <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
             </div>
 
-            <!-- 根据模式显示额外的注册字段 -->
             <div v-if="!isLoginMode">
               <div class="mb-3">
                 <label for="confirm-password" class="form-label">Confirm password</label>
@@ -109,8 +108,9 @@
 import { ref } from 'vue';
 
 const isLoginMode = ref(true); 
-const loggedInUser = ref(localStorage.getItem('loggedInUser'));
+const loggedInUser = ref(localStorage.getItem('loggedInUser') || '');
 
+// 初始化 formData，确保所有属性都有默认值
 const formData = ref({
   username: '',
   password: '',
@@ -127,12 +127,18 @@ const errors = ref({
   gender: null
 });
 
+// 通用清理函数，移除潜在危险字符
+const sanitizeInput = (input) => {
+  return input.replace(/[<>\/"']/g, '');
+};
+
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
   clearForm(); 
 };
 
 const validateConfirmPassword = () => {
+  formData.value.confirmPassword = sanitizeInput(formData.value.confirmPassword);
   if (!isLoginMode.value && formData.value.password !== formData.value.confirmPassword) {
     errors.value.confirmPassword = 'Passwords do not match.';
   } else {
@@ -141,6 +147,7 @@ const validateConfirmPassword = () => {
 };
 
 const validateName = () => {
+  formData.value.username = sanitizeInput(formData.value.username);
   if (formData.value.username.length < 3) {
     errors.value.username = 'Name must be at least 3 characters';
   } else {
@@ -149,6 +156,7 @@ const validateName = () => {
 };
 
 const validateGender = () => {
+  formData.value.gender = sanitizeInput(formData.value.gender);
   if (!isLoginMode.value && formData.value.gender.length === 0) {
     errors.value.gender = 'Please select at least one gender option';
   } else {
@@ -157,6 +165,7 @@ const validateGender = () => {
 };
 
 const validatePassword = () => {
+  formData.value.password = sanitizeInput(formData.value.password);
   const password = formData.value.password;
   const minLength = 8;
   const hasUppercase = /[A-Z]/.test(password);
@@ -305,9 +314,12 @@ const logout = () => {
   text-align: justify; 
 }
 
-.container {
-  max-width: 1000px;
+.container-fluid {
+  max-width: 100%; 
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .auth-container {
@@ -315,19 +327,9 @@ const logout = () => {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
-}
-
-.welcome-message {
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-.logout-button {
-  color: #dc3545;
-}
-
-.logout-button:hover {
-  color: #a71d2a;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 input,
@@ -361,5 +363,26 @@ textarea {
 h1 {
   color: #343a40;
   font-size: 1.75em;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 15px;
+    width: 90%;
+  }
+
+  .intro-text {
+    font-size: 1em;
+  }
+
+  .form-button,
+  .toggle-link {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .text-center {
+    flex-direction: column;
+  }
 }
 </style>
