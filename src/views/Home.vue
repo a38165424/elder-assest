@@ -5,6 +5,7 @@
     </p>
   </div>
   <div class="container-fluid mt-5"> 
+    <!-- User info and logout button -->
     <div v-if="loggedInUser" class="row justify-content-center mb-3">
       <div class="col-auto d-flex align-items-center">
         <span class="welcome-message">Welcome, {{ loggedInUser }}</span>
@@ -17,6 +18,7 @@
         <div class="auth-container p-4 shadow-sm rounded">
           <h1 class="text-center mb-4">{{ isLoginMode ? 'Login' : 'User Information Form' }}</h1>
           <form @submit.prevent="submitForm">
+            <!-- Username input -->
             <div class="mb-3">
               <label for="username" class="form-label">Username</label>
               <input
@@ -30,6 +32,7 @@
               <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
 
+            <!-- Password input -->
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
               <input
@@ -43,6 +46,7 @@
               <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
             </div>
 
+            <!-- Additional fields for registration -->
             <div v-if="!isLoginMode">
               <div class="mb-3">
                 <label for="confirm-password" class="form-label">Confirm password</label>
@@ -75,6 +79,7 @@
                 <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
               </div>
 
+              <!-- Admin role checkbox -->
               <div class="form-check mb-3">
                 <input
                   type="checkbox"
@@ -89,6 +94,7 @@
               </div>
             </div>
 
+            <!-- Submit and toggle button -->
             <div class="text-center">
               <button type="submit" class="btn btn-primary me-2 form-button">
                 {{ isLoginMode ? 'Login' : 'Submit' }}
@@ -110,7 +116,7 @@ import { ref } from 'vue';
 const isLoginMode = ref(true); 
 const loggedInUser = ref(localStorage.getItem('loggedInUser') || '');
 
-// 初始化 formData，确保所有属性都有默认值
+// Form data and errors
 const formData = ref({
   username: '',
   password: '',
@@ -127,16 +133,18 @@ const errors = ref({
   gender: null
 });
 
-// 通用清理函数，移除潜在危险字符
+// Sanitize input
 const sanitizeInput = (input) => {
   return input.replace(/[<>\/"']/g, '');
 };
 
+// Toggle between login and register mode
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
   clearForm(); 
 };
 
+// Validation functions
 const validateConfirmPassword = () => {
   formData.value.confirmPassword = sanitizeInput(formData.value.confirmPassword);
   if (!isLoginMode.value && formData.value.password !== formData.value.confirmPassword) {
@@ -193,6 +201,7 @@ const validateRole = () => {
   }
 };
 
+// Clear form fields
 const clearForm = () => {
   formData.value = {
     username: '',
@@ -206,6 +215,7 @@ const clearForm = () => {
   });
 };
 
+// Form submission handling
 const submitForm = () => {
   validateName();
   validatePassword();
@@ -223,6 +233,7 @@ const submitForm = () => {
   }
 };
 
+// Login function
 const login = () => {
   const storedUser = localStorage.getItem(formData.value.username);
   if (storedUser) {
@@ -243,6 +254,7 @@ const login = () => {
   }
 };
 
+// Register function
 const register = () => {
   validateName();
   validatePassword();
@@ -279,6 +291,7 @@ const register = () => {
   }
 };
 
+// Logout function
 const logout = () => {
   localStorage.removeItem('loggedInUser');
   localStorage.removeItem('userRole');
@@ -289,7 +302,6 @@ const logout = () => {
 </script>
 
 <style scoped>
-
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap');
 
 .intro-container {
@@ -386,3 +398,4 @@ h1 {
   }
 }
 </style>
+

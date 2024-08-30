@@ -1,9 +1,9 @@
 <template>
-  <div class="container-fluid mt-5"> <!-- Changed from .container to .container-fluid for full-width responsiveness -->
+  <div class="container-fluid mt-5"> 
     <h1 class="text-center">Administer Page</h1>
     <div v-if="isAdmin">
       <p>Welcome, Admin! You can  access and delete user in this page.</p>
-      <div class="row justify-content-center"> <!-- Added row for grid system -->
+      <div class="row justify-content-center"> 
         <div class="col-12 col-md-10 col-lg-8"> <!-- Adjusted column widths for different screen sizes -->
           <DataTable v-if="submittedCards.length" :value="submittedCards" class="mt-5">
             <Column field="username" header="Username"></Column>
@@ -62,7 +62,6 @@ const loadUserData = () => {
     if (key !== 'loggedInUser' && key !== 'userRole') {
       try {
         const userData = JSON.parse(localStorage.getItem(key));
-        // Only include users with role "User"
         if (userData.role === 'User') {
           users.push({
             username: key,

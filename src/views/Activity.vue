@@ -4,7 +4,6 @@
     <p>
       Welcome to Activity! We are committed to offering a comprehensive collection of books and resources to serve our community's needs.
     </p>
-    <!-- Calendar section added -->
     <div class="calendar-container">
       <h2>Choose a Date</h2>
       <input type="date" class="date-input" v-model="pickedDate" @change="onDateSelect" />

@@ -33,7 +33,6 @@
 </template>
 
 <script setup>
-// No specific script needed here for navigation links
 </script>
 
 <style scoped>
