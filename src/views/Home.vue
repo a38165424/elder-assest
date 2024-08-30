@@ -1,99 +1,105 @@
 <template>
+  <div class="intro-container">
+    <p class="intro-text">
+      Welcome to our home!
+    </p>
+  </div>
   <div class="container mt-5">
-    <!-- 显示当前登录的用户名和登出按钮 -->
-    <div v-if="loggedInUser" class="row justify-content-end mb-3">
-      <div class="col-auto">
-        <span>Welcome, {{ loggedInUser }}</span>
-        <button @click="logout" class="btn btn-link ms-3">Logout</button>
+    <div v-if="loggedInUser" class="row justify-content-center mb-3">
+      <div class="col-auto d-flex align-items-center">
+        <span class="welcome-message">Welcome, {{ loggedInUser }}</span>
+        <button @click="logout" class="btn btn-link ms-3 logout-button">Logout</button>
       </div>
     </div>
 
     <div class="row justify-content-center">
-      <div class="col-md-4">
-        <h1 class="text-center">{{ isLoginMode ? 'Login' : 'User Information Form' }}</h1>
-        <form @submit.prevent="submitForm">
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              @blur="() => validateName(true)"
-              @input="() => validateName(false)"
-              v-model="formData.username"
-            />
-            <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
-          </div>
-
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              @blur="() => validatePassword(true)"
-              @input="() => validatePassword(false)"
-              v-model="formData.password"
-            />
-            <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
-          </div>
-
-          <!-- 根据模式显示额外的注册字段 -->
-          <div v-if="!isLoginMode">
+      <div class="col-md-6">
+        <div class="auth-container p-4 shadow-sm rounded">
+          <h1 class="text-center mb-4">{{ isLoginMode ? 'Login' : 'User Information Form' }}</h1>
+          <form @submit.prevent="submitForm">
             <div class="mb-3">
-              <label for="confirm-password" class="form-label">Confirm password</label>
+              <label for="username" class="form-label">Username</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                @blur="validateName"
+                @input="validateName"
+                v-model="formData.username"
+              />
+              <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
               <input
                 type="password"
                 class="form-control"
-                id="confirm-password"
-                @blur="() => validateConfirmPassword(true)"
-                @input="() => validateConfirmPassword(false)"
-                v-model="formData.confirmPassword"
+                id="password"
+                @blur="validatePassword"
+                @input="validatePassword"
+                v-model="formData.password"
               />
-              <div v-if="errors.confirmPassword" class="text-danger">
-                {{ errors.confirmPassword }}
+              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+            </div>
+
+            <!-- 根据模式显示额外的注册字段 -->
+            <div v-if="!isLoginMode">
+              <div class="mb-3">
+                <label for="confirm-password" class="form-label">Confirm password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirm-password"
+                  @blur="validateConfirmPassword"
+                  @input="validateConfirmPassword"
+                  v-model="formData.confirmPassword"
+                />
+                <div v-if="errors.confirmPassword" class="text-danger">
+                  {{ errors.confirmPassword }}
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <select
+                  class="form-select"
+                  id="gender"
+                  @blur="validateGender"
+                  @input="validateGender"
+                  v-model="formData.gender"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
+              </div>
+
+              <div class="form-check mb-3">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="isAdmin"
+                  @blur="validateRole"
+                  @input="validateRole"
+                  v-model="formData.isAdmin"
+                />
+                <label class="form-check-label" for="isAdmin">Are you admin?</label>
+                <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="gender" class="form-label">Gender</label>
-              <select
-                class="form-select"
-                id="gender"
-                @blur="() => validateGender(true)"
-                @input="() => validateGender(false)"
-                v-model="formData.gender"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary me-2 form-button">
+                {{ isLoginMode ? 'Login' : 'Submit' }}
+              </button>
+              <button type="button" class="btn btn-link toggle-link" @click="toggleMode">
+                {{ isLoginMode ? 'Create an account' : 'Already have an account? Login' }}
+              </button>
             </div>
-
-            <div class="form-check mb-3">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="isAdmin"
-                @blur="() => validateRole(true)"
-                @input="() => validateRole(false)"
-                v-model="formData.isAdmin"
-              />
-              <label class="form-check-label" for="isAdmin">Are you admin?</label>
-              <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
-            </div>
-          </div>
-
-          <div class="text-center">
-            <button type="submit" class="btn btn-primary me-2">
-              {{ isLoginMode ? 'Login' : 'Submit' }}
-            </button>
-            <button type="button" class="btn btn-link" @click="toggleMode">
-              {{ isLoginMode ? 'Create an account' : 'Already have an account? Login' }}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -102,14 +108,14 @@
 <script setup>
 import { ref } from 'vue';
 
-const isLoginMode = ref(true); // 控制显示登录还是注册模式
+const isLoginMode = ref(true); 
 const loggedInUser = ref(localStorage.getItem('loggedInUser'));
 
 const formData = ref({
   username: '',
   password: '',
   confirmPassword: '',
-  isAdmin: false, // 默认角色为User（不是Admin）
+  isAdmin: false, 
   gender: ''
 });
 
@@ -123,7 +129,7 @@ const errors = ref({
 
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
-  clearForm(); // 切换模式时清除表单
+  clearForm(); 
 };
 
 const validateConfirmPassword = () => {
@@ -217,11 +223,11 @@ const login = () => {
     if (formData.value.password === storedPassword) {
       alert(`Login successful! You are logged in as ${storedData.role}`);
       localStorage.setItem('loggedInUser', formData.value.username);
-      localStorage.setItem('userRole', storedData.role); // 保存用户角色信息
+      localStorage.setItem('userRole', storedData.role); 
       loggedInUser.value = formData.value.username;
-      errors.value.password = null; // 清除错误消息
+      errors.value.password = null; 
     } else {
-      errors.value.password = 'Incorrect password!'; // 显示密码错误的消息
+      errors.value.password = 'Incorrect password!'; 
     }
   } else {
     alert('Username does not exist!');
@@ -257,8 +263,8 @@ const register = () => {
       })
     );
     alert('Registration successful!');
-    clearForm(); // 注册成功后清除表单
-    toggleMode(); // 注册成功后切换到登录模式
+    clearForm(); 
+    toggleMode(); 
   } else {
     alert('Please fix the errors before submitting.');
   }
@@ -269,28 +275,59 @@ const logout = () => {
   localStorage.removeItem('userRole');
   alert('You have been logged out.');
   loggedInUser.value = null;
-  location.reload(); // 刷新页面
+  location.reload(); 
 };
 </script>
 
 <style scoped>
-.auth-container {
-  max-width: 500px;
-  margin: 0 auto;
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap');
+
+.intro-container {
   padding: 20px;
+  background-color: #eef2f7;
   border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #f9f9f9;
-}
-
-h2 {
-  text-align: center;
+  border-radius: 8px;
   margin-bottom: 20px;
+  text-align: center;
+  max-width: 800px; 
+  margin-left: auto;
+  margin-right: auto;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
+.intro-text {
+  font-family: 'Lora', serif; 
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  text-align: justify; 
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.auth-container {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.welcome-message {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.logout-button {
+  color: #dc3545;
+}
+
+.logout-button:hover {
+  color: #a71d2a;
 }
 
 input,
@@ -298,34 +335,31 @@ select,
 textarea {
   margin-bottom: 15px;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #275FDA;
+.form-button {
+  background-color: #007bff;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-button:hover {
-  background-color: #1e4bb5;
+.form-button:hover {
+  background-color: #0056b3;
 }
 
-.text-center {
-  margin-top: 20px;
-}
-
-a {
+.toggle-link {
   color: #007bff;
-  cursor: pointer;
 }
 
-a:hover {
+.toggle-link:hover {
+  color: #0056b3;
   text-decoration: underline;
+}
+
+h1 {
+  color: #343a40;
+  font-size: 1.75em;
 }
 </style>

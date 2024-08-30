@@ -1,4 +1,9 @@
 <template>
+  <div class="intro-container">
+    <p class="intro-text">
+      At ElderCare Services, we are dedicated to improving the quality of life for seniors by providing compassionate, personalized care and support that allows them to live independently and with dignity.
+    </p>
+  </div>
   <div class="container mt-5">
     <h1 class="text-center">Rate Our Service</h1>
     <form @submit.prevent="submitRating">
@@ -29,12 +34,12 @@
       </div>
     </form>
 
-    <!-- 显示平均评分 -->
+    <!-- Show average rate -->
     <div v-if="averageRating !== null" class="mt-4 text-center">
       <h4>Average Rating: {{ averageRating }}</h4>
     </div>
 
-    <!-- 显示所有用户的评分 -->
+    <!-- Show all users rate -->
     <div v-if="ratings.length > 0" class="mt-4">
       <h4>User Ratings:</h4>
       <ul>
@@ -45,7 +50,7 @@
       </ul>
     </div>
 
-    <!-- Admin Only: 清除所有评分按钮 -->
+    <!-- Admin Only: clear all rates -->
     <div v-if="isAdmin" class="text-center mt-4">
       <button @click="clearAllRatings" class="btn btn-danger">Clear All Ratings</button>
     </div>
@@ -55,26 +60,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
-// 当前用户角色
+// current user role
 const isAdmin = ref(false);
 
-// 获取当前登录的用户名
+// get current username
 const username = ref('');
 
-// 评分和评论
 const rating = ref(null);
 const comment = ref('');
 
-// 存储所有评分
+// store all rates
 const ratings = ref([]);
 
-// 表单错误信息
+// form error message
 const errors = ref({
   rating: null,
   comment: null,
 });
 
-// 计算平均评分
+// calculate average rates
 const averageRating = computed(() => {
   if (ratings.value.length === 0) return null;
   const sum = ratings.value.reduce(
@@ -84,7 +88,7 @@ const averageRating = computed(() => {
   return (sum / ratings.value.length).toFixed(2);
 });
 
-// 表单验证函数
+// form test function
 const validateForm = () => {
   let isValid = true;
 
@@ -110,7 +114,7 @@ const validateForm = () => {
   return isValid;
 };
 
-// 提交评分
+// submit rate
 const submitRating = () => {
   if (!validateForm()) {
     return;
@@ -124,30 +128,29 @@ const submitRating = () => {
 
   ratings.value.push(newRating);
 
-  // 保存评分到 localStorage
+  // save the rate to localStorage
   localStorage.setItem('ratings', JSON.stringify(ratings.value));
 
   alert('Thank you for your rating!');
   clearForm();
 };
 
-// 清除所有评分
+// clear all
 const clearAllRatings = () => {
-  // 清除 localStorage 中的所有评分记录
+  // clear all the rate message in localStorage
   localStorage.removeItem('ratings');
   ratings.value = [];
   alert('All ratings have been cleared.');
 };
 
-// 清除表单
+// clear form
 const clearForm = () => {
   rating.value = null;
   comment.value = '';
 };
 
-// 组件加载时执行
 onMounted(() => {
-  // 获取当前登录的用户名
+  // get current username
   const storedUsername = localStorage.getItem('loggedInUser');
   if (storedUsername) {
     username.value = storedUsername;
@@ -155,13 +158,13 @@ onMounted(() => {
     alert('No user is currently logged in.');
   }
 
-  // 获取当前用户角色
+  // get current role
   const userRole = localStorage.getItem('userRole');
   if (userRole === 'Admin') {
     isAdmin.value = true;
   }
 
-  // 获取已存在的评分数据
+  // get rate exist
   const storedRatings = localStorage.getItem('ratings');
   if (storedRatings) {
     ratings.value = JSON.parse(storedRatings);
@@ -170,6 +173,30 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap');
+
+.intro-container {
+  padding: 20px;
+  background-color: #eef2f7;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  max-width: 800px; 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.intro-text {
+  font-family: 'Lora', serif; 
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  text-align: justify; 
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;
