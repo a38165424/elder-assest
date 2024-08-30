@@ -2,7 +2,7 @@
   <div class="container-fluid mt-5"> 
     <h1 class="text-center">Administer Page</h1>
     <div v-if="isAdmin">
-      <p>Welcome, Admin! You can  access and delete user in this page.</p>
+      <p>Welcome, Admin! You can delete user in this page.</p>
       <div class="row justify-content-center"> 
         <div class="col-12 col-md-10 col-lg-8"> <!-- Adjusted column widths for different screen sizes -->
           <DataTable v-if="submittedCards.length" :value="submittedCards" class="mt-5">
@@ -22,7 +22,7 @@
       </div>
     </div>
     <div v-else>
-      <p>You are not an admin. You do not have permission to view this content.</p>
+      <p>You are not an admin. So you do not have permission to view this content.</p>
     </div>
   </div>
 </template>
@@ -31,6 +31,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
 
 // Define reactive variables
 const isAdmin = ref(false);
@@ -43,6 +44,7 @@ if (userRole === 'Admin') {
 } else {
   isAdmin.value = false;
 }
+
 
 // Load registered users from localStorage when component mounts
 onMounted(() => {
