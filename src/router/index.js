@@ -1,35 +1,34 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
-import AboutUs from '../views/AboutUs.vue';
-import Activity from '../views/Activity.vue';
-import Service from '../views/Service.vue';
-import Administor from '../views/Administor.vue';
-
+import HomeView from '../views/HomeView.vue';
+import AboutUsView from '../views/AboutUsView.vue';
+import ActivityView from '../views/ActivityView.vue';
+import ServiceView from '../views/ServiceView.vue';
+import AdministorView from '../views/AdministorView.vue';
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'HomeView',
+    component: HomeView,
   },
   {
-    path: '/AboutUs',
-    name: 'AboutUs',
-    component: AboutUs,
+    path: '/AboutUsView',
+    name: 'AboutUsView',
+    component: AboutUsView,
   },
   {
-    path: '/Activity',
-    name: 'Activity',
-    component: Activity,
+    path: '/ActivityView',
+    name: 'ActivityView',
+    component: ActivityView,
   },
   {
-    path: '/Service',
-    name: 'Service',
-    component: Service,
+    path: '/ServiceView',
+    name: 'ServiceView',
+    component: ServiceView,
   },
   {
-    path: '/Administor',
-    name: 'Administor',
-    component: Administor,
+    path: '/AdministorView',
+    name: 'AdministorView',
+    component: AdministorView,
     meta: { requiresAuth: true, role: 'Admin' },
   },
 ];
@@ -47,10 +46,10 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!loggedInUser) {
       alert('You need to log in to access this page.');
-      next({ name: 'Home' }); // Redirect to Home if not logged in
+      next({ name: 'HomeView' }); // Redirect to Home if not logged in
     } else if (to.meta.role && to.meta.role !== userRole) {
       alert('You do not have permission to access this page.');
-      next({ name: 'Home' }); // Redirect to Home if role does not match
+      next({ name: 'HomeView' }); // Redirect to Home if role does not match
     } else {
       next(); // Allow access
     }

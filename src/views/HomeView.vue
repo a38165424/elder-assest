@@ -4,7 +4,7 @@
       Welcome to our home!
     </p>
   </div>
-  <div class="container-fluid mt-5"> 
+  <div class="container-fluid mt-5">
     <!-- User info and logout button -->
     <div v-if="loggedInUser" class="row justify-content-center mb-3">
       <div class="col-auto d-flex align-items-center">
@@ -14,13 +14,22 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="col-12 col-md-8 col-lg-4"> 
+      <div class="col-12 col-md-8 col-lg-4">
         <div class="auth-container p-4 shadow-sm rounded">
           <h1 class="text-center mb-4">{{ isLoginMode ? 'Login' : 'User Information Form' }}</h1>
           <form @submit.prevent="submitForm">
-            <!-- Username input -->
+            <!-- Authentication method selector -->
             <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
+              <label for="authMethod" class="form-label">Choose Authentication Method:</label>
+              <select class="form-select" id="authMethod" v-model="authMethod">
+                <option value="local">Local Storage</option>
+                <option value="firebase">Firebase</option>
+              </select>
+            </div>
+
+            <!-- Username/Email input -->
+            <div class="mb-3">
+              <label for="username" class="form-label">Username / Email</label>
               <input
                 type="text"
                 class="form-control"
@@ -63,7 +72,7 @@
                 </div>
               </div>
 
-              <div class="mb-3">
+              <div class="mb-3" v-if="authMethod === 'firebase'">
                 <label for="gender" class="form-label">Gender</label>
                 <select
                   class="form-select"
@@ -112,16 +121,21 @@
 
 <script setup>
 import { ref } from 'vue';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
-const isLoginMode = ref(true); 
+const isLoginMode = ref(true);
 const loggedInUser = ref(localStorage.getItem('loggedInUser') || '');
+
+// Authentication method
+const authMethod = ref('local');
 
 // Form data and errors
 const formData = ref({
   username: '',
   password: '',
   confirmPassword: '',
-  isAdmin: false, 
+  isAdmin: false,
   gender: ''
 });
 
@@ -133,15 +147,19 @@ const errors = ref({
   gender: null
 });
 
+// Firebase setup
+const auth = getAuth();
+const db = getFirestore();
+
 // Sanitize input
 const sanitizeInput = (input) => {
-  return input.replace(/[<>\/"']/g, '');
+  return input.replace(/[<>/"']/g, '');
 };
 
 // Toggle between login and register mode
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
-  clearForm(); 
+  clearForm();
 };
 
 // Validation functions
@@ -201,7 +219,6 @@ const validateRole = () => {
   }
 };
 
-
 // Clear form fields
 const clearForm = () => {
   formData.value = {
@@ -216,7 +233,6 @@ const clearForm = () => {
   });
 };
 
-
 // Form submission handling
 const submitForm = () => {
   validateName();
@@ -229,14 +245,22 @@ const submitForm = () => {
   }
 
   if (isLoginMode.value) {
-    login();
+    if (authMethod.value === 'local') {
+      loginLocal();
+    } else {
+      loginFirebase();
+    }
   } else {
-    register();
+    if (authMethod.value === 'local') {
+      registerLocal();
+    } else {
+      registerFirebase();
+    }
   }
 };
 
-// Login function
-const login = () => {
+// Local login function
+const loginLocal = () => {
   const storedUser = localStorage.getItem(formData.value.username);
   if (storedUser) {
     const storedData = JSON.parse(storedUser);
@@ -245,61 +269,97 @@ const login = () => {
     if (formData.value.password === storedPassword) {
       alert(`Login successful! You are logged in as ${storedData.role}`);
       localStorage.setItem('loggedInUser', formData.value.username);
-      localStorage.setItem('userRole', storedData.role); 
+      localStorage.setItem('userRole', storedData.role);
       loggedInUser.value = formData.value.username;
-      errors.value.password = null; 
+      errors.value.password = null;
     } else {
-      errors.value.password = 'Incorrect password!'; 
+      errors.value.password = 'Incorrect password!';
     }
   } else {
     alert('Username does not exist!');
   }
 };
 
-// Register function
-const register = () => {
-  validateName();
-  validatePassword();
-  validateConfirmPassword();
-  validateGender();
-  validateRole();
-
+// Local register function
+const registerLocal = () => {
   if (localStorage.getItem(formData.value.username)) {
     alert('Username already exists!');
     return;
   }
 
-  if (
-    !errors.value.username &&
-    !errors.value.password &&
-    !errors.value.confirmPassword &&
-    !errors.value.gender &&
-    !errors.value.role
-  ) {
-    const role = formData.value.isAdmin ? 'Admin' : 'User';
+  if (formData.value.password === formData.value.confirmPassword) {
     localStorage.setItem(
       formData.value.username,
       JSON.stringify({
         password: formData.value.password,
-        role: role,
-        gender: formData.value.gender
+        role: formData.value.isAdmin ? 'Admin' : 'User'
       })
     );
     alert('Registration successful!');
-    clearForm(); 
-    toggleMode(); 
+    clearForm();
+    toggleMode();
   } else {
-    alert('Please fix the errors before submitting.');
+    errors.value.confirmPassword = 'Passwords do not match.';
   }
+};
+
+// Firebase login function
+const loginFirebase = () => {
+  signInWithEmailAndPassword(auth, formData.value.username, formData.value.password)
+    .then(async (data) => {
+      const user = data.user;
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        loggedInUser.value = user.email;
+        localStorage.setItem('loggedInUser', user.email);
+        localStorage.setItem('userRole', userDoc.data().role);
+        alert(`Login successful (Firebase)! Role: ${userDoc.data().role}`);
+      }
+    })
+    .catch((error) => {
+      alert('Login failed! ' + error.message);
+    });
+};
+
+// Firebase register function
+const registerFirebase = () => {
+  if (formData.value.password !== formData.value.confirmPassword) {
+    errors.value.confirmPassword = 'Passwords do not match.';
+    return;
+  }
+  createUserWithEmailAndPassword(auth, formData.value.username, formData.value.password)
+    .then(async (data) => {
+      const user = data.user;
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: formData.value.isAdmin ? 'Admin' : 'User',
+        gender: formData.value.gender
+      });
+      alert('Registration successful (Firebase)!');
+      clearForm();
+      toggleMode();
+    })
+    .catch((error) => {
+      alert('Registration failed! ' + error.message);
+    });
 };
 
 // Logout function
 const logout = () => {
-  localStorage.removeItem('loggedInUser');
-  localStorage.removeItem('userRole');
-  alert('You have been logged out.');
-  loggedInUser.value = null;
-  location.reload(); 
+  if (authMethod.value === 'firebase') {
+    signOut(auth).then(() => {
+      alert('Logged out from Firebase');
+      loggedInUser.value = null;
+      localStorage.removeItem('loggedInUser');
+      localStorage.removeItem('userRole');
+    });
+  } else {
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('userRole');
+    alert('You have been logged out.');
+    loggedInUser.value = null;
+    location.reload();
+  }
 };
 </script>
 
@@ -313,23 +373,23 @@ const logout = () => {
   border-radius: 8px;
   margin-bottom: 20px;
   text-align: center;
-  max-width: 800px; 
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .intro-text {
-  font-family: 'Lora', serif; 
+  font-family: 'Lora', serif;
   font-size: 1.2em;
   font-weight: 500;
   color: #333;
   line-height: 1.6;
   margin: 0;
-  text-align: justify; 
+  text-align: justify;
 }
 
 .container-fluid {
-  max-width: 100%; 
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
