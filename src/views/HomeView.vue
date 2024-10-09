@@ -368,8 +368,8 @@ const logout = () => {
 
 .intro-container {
   padding: 20px;
-  background-color: #eef2f7;
-  border: 1px solid #ccc;
+  background-color: #f7f2ed;
+  border: 1px solid #d6cfc7;
   border-radius: 8px;
   margin-bottom: 20px;
   text-align: center;
@@ -382,7 +382,7 @@ const logout = () => {
   font-family: 'Lora', serif;
   font-size: 1.2em;
   font-weight: 500;
-  color: #333;
+  color: #5b4636;
   line-height: 1.6;
   margin: 0;
   text-align: justify;
@@ -397,8 +397,8 @@ const logout = () => {
 }
 
 .auth-container {
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  border: 1px solid #d6cfc7;
   border-radius: 8px;
   padding: 20px;
   width: 100%;
@@ -411,31 +411,37 @@ select,
 textarea {
   margin-bottom: 15px;
   padding: 10px;
-  border: 1px solid #ced4da;
+  border: 1px solid #bdaea0;
   border-radius: 4px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-button {
-  background-color: #007bff;
-  color: white;
+  background-color: #8b5e3c; /* 深棕色 */
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
 }
 
 .form-button:hover {
-  background-color: #0056b3;
+  background-color: #73492f; /* 更深的棕色 */
 }
 
 .toggle-link {
-  color: #007bff;
+  color: #8b5e3c; /* 深棕色 */
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .toggle-link:hover {
-  color: #0056b3;
+  color: #73492f;
   text-decoration: underline;
 }
 
 h1 {
-  color: #343a40;
+  color: #5b4636;
   font-size: 1.75em;
 }
 
@@ -460,4 +466,3 @@ h1 {
   }
 }
 </style>
-

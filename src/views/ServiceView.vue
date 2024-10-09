@@ -169,31 +169,36 @@ onMounted(() => {
 label {
   display: block;
   margin-bottom: 8px;
+  color: #5b4636; 
 }
 
 input {
   width: 100%;
   padding: 8px;
   margin-bottom: 16px;
+  border: 1px solid #bdaea0;
+  border-radius: 4px;
 }
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: #8b5e3c; 
+  color: #ffffff;
   border: none;
   cursor: pointer;
+  border-radius: 5px;
   margin-top: 10px;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #73492f; 
 }
 
 .map-container {
   width: 100%;
   height: 400px;
   margin-top: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #d6cfc7; 
 }
 </style>
+

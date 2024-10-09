@@ -12,6 +12,7 @@
     <form @submit.prevent="submitFeedback" class="rating-form">
       <fieldset class="rating-group">
         <legend>Rate Your Experience (1-5)</legend>
+        <label for="service-rating">Rating</label>
         <input
           type="number"
           class="rating-input"
@@ -24,6 +25,7 @@
       </fieldset>
       <fieldset class="comment-group">
         <legend>Leave a Comment</legend>
+        <label for="service-comment">Comment</label>
         <textarea
           class="comment-input"
           id="service-comment"
@@ -59,6 +61,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
@@ -176,108 +179,96 @@ onMounted(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap');
 
-/* Styling for the intro banner section */
 .intro-banner {
   padding: 20px;
-  background: #f0f4f8;
-  border: 1px solid #dcdcdc;
+  background-color: #f7f2ed;
+  border: 1px solid #d6cfc7;
   border-radius: 10px;
   margin: 0 auto 25px;
   max-width: 850px;
   text-align: center;
 }
 
-/* Text styling for the description */
 .description {
   font-family: 'Lora', serif;
-  color: #555;
+  color: #5b4636;
   font-size: 1.15em;
   line-height: 1.7;
 }
 
-/* Main feedback form container styling */
 .feedback-section {
   max-width: 650px;
   margin: auto;
   padding: 35px;
-  border: 1px solid #ddd;
+  border: 1px solid #d6cfc7;
   border-radius: 12px;
   background-color: #ffffff;
 }
 
-/* Header styling for feedback section */
 .feedback-header {
   margin-bottom: 30px;
 }
 
-/* Layout styling for feedback form */
 .rating-form {
   display: flex;
   flex-direction: column;
 }
 
-/* Rating and comment group styling */
 .rating-group,
 .comment-group {
   margin-bottom: 20px;
 }
 
-/* Input styling for rating and comments */
 .rating-input,
 .comment-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #bdaea0;
   border-radius: 6px;
 }
 
-/* Submit button styling */
 .btn-submit {
   padding: 12px 24px;
-  background-color: #2869c8;
-  color: #fff;
+  background-color: #8b5e3c; 
+  color: #ffffff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .btn-submit:hover {
-  background-color: #2157a6;
+  background-color: #73492f; 
 }
 
-/* Average rating and feedback list styling */
 .average-rating,
 .user-feedback-list {
   text-align: center;
 }
 
-/* Styling for the feedback list */
 .feedback-list {
   list-style-type: none;
   padding: 0;
 }
 
-/* Styling for each feedback item */
 .feedback-list li {
   padding: 12px 0;
   border-bottom: 1px solid #e0e0e0;
 }
 
-/* Admin action button styling */
 .admin-actions {
   margin-top: 25px;
 }
 
 .btn-clear {
   padding: 10px 20px;
-  background-color: #e74c3c;
-  color: #fff;
+  background-color: #b04b4b;
+  color: #ffffff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .btn-clear:hover {
-  background-color: #c0392b;
+  background-color: #903c3c;
 }
 </style>
