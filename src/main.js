@@ -7,11 +7,10 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-// 你已经注释掉了主题和样式导入，根据需要再添加回来
 import 'mapbox-gl/dist/mapbox-gl.css';
-//import 'primevue/resources/themes/saga-blue/theme.css';       // 主题样式
-//import 'primevue/resources/primevue.min.css';                 // 核心样式
-import 'primeicons/primeicons.css';                           // 图标
+//import 'primevue/resources/themes/saga-blue/theme.css';       
+//import 'primevue/resources/primevue.min.css';                 
+import 'primeicons/primeicons.css';                          
 
 // Initialize Vue app
 const app = createApp(App);

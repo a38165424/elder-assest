@@ -44,7 +44,7 @@ const initMap = () => {
   map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
-    center: [144.9631, -37.8136], // Default center (Melbourne)
+    center: [144.9631, -37.8136], 
     zoom: 12,
   });
 

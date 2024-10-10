@@ -417,7 +417,7 @@ textarea {
 }
 
 .form-button {
-  background-color: #8b5e3c; /* 深棕色 */
+  background-color: #8b5e3c; 
   color: #ffffff;
   border: none;
   border-radius: 5px;

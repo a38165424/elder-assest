@@ -9,8 +9,25 @@
       <label for="date-picker">Select Date:</label>
       <input type="date" id="date-picker" class="date-input" v-model="pickedDate" @change="onDateSelect" />
       <p v-if="pickedDate">Selected Date: {{ pickedDate }}</p>
+      
+      <div v-if="availableTimes.length > 0">
+        <h3>Select a Time</h3>
+        <select v-model="pickedTime">
+          <option v-for="time in availableTimes" :key="time" :value="time">{{ time }}</option>
+        </select>
+        <button @click="makeReservation" class="reserve-button">Reserve</button>
+      </div>
     </div>
-    
+
+    <h3>Your Reservations</h3>
+    <ul v-if="allReservations.length">
+      <li v-for="(reservation, index) in allReservations" :key="index">
+        {{ reservation.date }} at {{ reservation.time }}
+        <button @click="cancelReservation(reservation.date, reservation.time)" class="cancel-button">Cancel</button>
+      </li>
+    </ul>
+    <p v-else>No reservations found.</p>
+
     <h2>Activity Schedule</h2>
     <div class="table-filters">
       <label for="activity-search" class="sr-only">Search Activity</label>
@@ -31,15 +48,36 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const pickedDate = ref('');
+const pickedTime = ref('');
+const availableTimes = ref([]);
 const filters = ref({
   activity: '',
   location: ''
 });
+
+
+const allReservations = ref([]);
+let loggedInUser = '';
+
+const loadUserID = () => {
+  loggedInUser = localStorage.getItem('loggedInUser');
+  if (!loggedInUser) {
+    console.error('User not logged in');
+  }
+};
+
+const loadReservations = () => {
+  const savedReservations = JSON.parse(localStorage.getItem(`reservations_${loggedInUser}`)) || [];
+  allReservations.value = savedReservations;
+};
+
+const saveReservations = () => {
+  localStorage.setItem(`reservations_${loggedInUser}`, JSON.stringify(allReservations.value));
+};
 
 const activities = ref([
   { activity: 'Yoga Class', date: '2024-10-07', time: '10:00 AM', location: 'Community Hall' },
@@ -59,7 +97,29 @@ const activities = ref([
   { activity: 'Fitness Training', date: '2024-10-20', time: '08:00 AM', location: 'Gym' }
 ]);
 
-// Computed property to filter activities based on search and selected date
+const onDateSelect = () => {
+  availableTimes.value = activities.value
+    .filter(activity => activity.date === pickedDate.value)
+    .map(activity => activity.time);
+  pickedTime.value = '';
+};
+
+const makeReservation = () => {
+  if (pickedDate.value && pickedTime.value) {
+    allReservations.value.push({
+      date: pickedDate.value,
+      time: pickedTime.value
+    });
+    saveReservations(); 
+  }
+};
+
+
+const cancelReservation = (date, time) => {
+  allReservations.value = allReservations.value.filter(reservation => !(reservation.date === date && reservation.time === time));
+  saveReservations(); 
+};
+
 const filteredActivities = computed(() => {
   return activities.value.filter(activity => {
     return (
@@ -70,12 +130,6 @@ const filteredActivities = computed(() => {
   });
 });
 
-// Function to handle date selection
-const onDateSelect = () => {
-  console.log(`Date chosen: ${pickedDate.value}`);
-};
-
-// Function to export data as CSV
 const exportToCSV = () => {
   const headers = ['Activity', 'Date', 'Time', 'Location'];
   const rows = filteredActivities.value.map(activity => [
@@ -96,11 +150,17 @@ const exportToCSV = () => {
   link.download = 'activities.csv';
   link.click();
 };
+
+onMounted(() => {
+  loadUserID();
+  loadReservations();
+});
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap');
 
+
+
+<style scoped>
 .about {
   padding: 20px;
   max-width: 750px;
@@ -110,75 +170,21 @@ const exportToCSV = () => {
   border: 1px solid #d6cfc7;
   border-radius: 12px;
 }
-
-h1 {
-  color: #5b4636;
-  font-size: 2.1em;
-  margin-bottom: 12px;
-}
-
-p {
-  color: #5b4636;
-  line-height: 1.7;
-  margin-bottom: 15px;
-}
-
-.calendar-container {
-  margin-top: 25px;
-  padding: 18px;
-  background-color: #eae4d8;
-  border: 1px solid #bdaea0;
-  border-radius: 10px;
-}
-
-h2 {
-  font-size: 1.6em;
-  margin-bottom: 10px;
-  color: #5b4636;
-}
-
-.date-input {
-  padding: 10px;
-  font-size: 1.1em;
-  border: 1px solid #bdaea0;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.date-input:focus {
-  border-color: #8b5e3c;
-  outline: none;
-}
-
-.table-filters {
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-.table-filters input {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #bdaea0;
-  width: 150px;
-}
-
-.export-button {
-  margin-top: 20px;
-  padding: 15px 20px;
-  min-width: 44px;
-  min-height: 44px;
+.reserve-button, .cancel-button {
+  margin-top: 10px;
+  padding: 10px 15px;
   background-color: #8b5e3c;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
-
-.export-button:hover {
+.reserve-button:hover, .cancel-button:hover {
   background-color: #73492f;
 }
-
+.cancel-button {
+  margin-left: 10px;
+}
 ::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-page,
 ::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-prev,
 ::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-next {
@@ -192,16 +198,17 @@ h2 {
   align-items: center !important;
   justify-content: center !important;
 }
-
-
 @media (max-width: 768px) {
   .table-filters {
     flex-direction: column;
     align-items: center;
   }
-
   .table-filters input {
     width: 100%;
   }
 }
+.cancel-button {
+  margin-left: 10px;
+}
 </style>
+
