@@ -39,62 +39,55 @@
       </div>
     </form>
 
-    <!-- Display the average rating if available -->
     <div v-if="averageRating !== null" class="average-rating text-center">
       <h4>Average User Rating: {{ averageRating }}</h4>
     </div>
 
-    <!-- Display a list of user feedbacks -->
-    <div v-if="ratings.length > 0" class="user-feedback-list mt-4">
-      <h4>Customer Feedback:</h4>
-      <ul class="feedback-list">
-        <li v-for="(feedback, index) in ratings" :key="index">
-          <strong>{{ feedback.username }}</strong> - Rated: {{ feedback.rating }}<br>
-          Comment: {{ feedback.comment }}
-        </li>
-      </ul>
+    <div class="table-filters mt-4">
+      <input v-model="filters.rating" placeholder="Search by Rating" />
+      <input v-model="filters.comment" placeholder="Search by Comment" />
     </div>
 
-    <!-- Admin-only section to clear all feedbacks -->
+    <DataTable :value="filteredRatings" :paginator="true" :rows="5" :sortField="'rating'" :sortOrder="1" :responsiveLayout="'scroll'">
+      <Column field="username" header="Username" sortable></Column>
+      <Column field="rating" header="Rating" sortable></Column>
+      <Column field="comment" header="Comment"></Column>
+    </DataTable>
+
     <div v-if="isAdmin" class="admin-actions text-center mt-4">
       <button @click="clearAllRatings" class="btn-clear">Clear All Feedback</button>
     </div>
   </div>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
-// Admin role check
 const isAdmin = ref(false);
 const username = ref('');
-
-// Input fields for rating and comments
 const rating = ref(null);
 const comment = ref('');
-
-// Store all ratings from users
 const ratings = ref([]);
-
-// Form validation error messages
+const filters = ref({
+  rating: '',
+  comment: '',
+});
 const errors = ref({
   rating: null,
   comment: null,
 });
 
-// Calculate the average rating from all user feedbacks
 const averageRating = computed(() => {
   if (ratings.value.length === 0) return null;
   const total = ratings.value.reduce((sum, feedback) => sum + feedback.rating, 0);
   return (total / ratings.value.length).toFixed(2);
 });
 
-// Validate the feedback form inputs
 const validateForm = () => {
   let isValid = true;
 
-  // Validate rating value between 1 and 5
   if (!rating.value || rating.value < 1 || rating.value > 5) {
     errors.value.rating = 'Please provide a rating between 1 and 5.';
     isValid = false;
@@ -102,7 +95,6 @@ const validateForm = () => {
     errors.value.rating = null;
   }
 
-  // Check if comment is provided
   if (!comment.value.trim()) {
     errors.value.comment = 'Please provide a comment with your feedback.';
     isValid = false;
@@ -110,7 +102,6 @@ const validateForm = () => {
     errors.value.comment = null;
   }
 
-  // Ensure the user is logged in before allowing feedback submission
   if (!username.value) {
     alert('Please log in to provide feedback.');
     isValid = false;
@@ -119,11 +110,9 @@ const validateForm = () => {
   return isValid;
 };
 
-// Handle feedback form submission
 const submitFeedback = () => {
   if (!validateForm()) return;
 
-  // Create a new feedback object and add it to the ratings list
   const feedback = {
     username: username.value,
     rating: parseFloat(rating.value),
@@ -131,30 +120,36 @@ const submitFeedback = () => {
   };
 
   ratings.value.push(feedback);
-
-  // Save feedback to localStorage
   localStorage.setItem('ratings', JSON.stringify(ratings.value));
 
   alert('Thank you for your feedback!');
   resetForm();
 };
 
-// Clear all user feedbacks (admin action)
 const clearAllRatings = () => {
   localStorage.removeItem('ratings');
   ratings.value = [];
   alert('All feedback has been cleared.');
 };
 
-// Reset the feedback form inputs
 const resetForm = () => {
   rating.value = null;
   comment.value = '';
 };
 
-// Initialize the component and load data on mount
+const filteredRatings = computed(() => {
+  return ratings.value.filter(feedback => {
+    const matchesRating = filters.value.rating
+      ? feedback.rating.toString().includes(filters.value.rating)
+      : true;
+    const matchesComment = filters.value.comment
+      ? feedback.comment.toLowerCase().includes(filters.value.comment.toLowerCase())
+      : true;
+    return matchesRating && matchesComment;
+  });
+});
+
 onMounted(() => {
-  // Check logged in user
   const storedUsername = localStorage.getItem('loggedInUser');
   if (storedUsername) {
     username.value = storedUsername;
@@ -162,13 +157,11 @@ onMounted(() => {
     alert('Please log in to provide feedback.');
   }
 
-  // Check if user is an admin
   const userRole = localStorage.getItem('userRole');
   if (userRole === 'Admin') {
     isAdmin.value = true;
   }
 
-  // Load existing ratings from localStorage
   const storedRatings = localStorage.getItem('ratings');
   if (storedRatings) {
     ratings.value = JSON.parse(storedRatings);
@@ -209,14 +202,11 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
-.rating-form {
+.table-filters {
+  margin-bottom: 10px;
   display: flex;
-  flex-direction: column;
-}
-
-.rating-group,
-.comment-group {
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .rating-input,
@@ -240,21 +230,6 @@ onMounted(() => {
   background-color: #73492f; 
 }
 
-.average-rating,
-.user-feedback-list {
-  text-align: center;
-}
-
-.feedback-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.feedback-list li {
-  padding: 12px 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
 .admin-actions {
   margin-top: 25px;
 }
@@ -267,7 +242,19 @@ onMounted(() => {
   border-radius: 5px;
   cursor: pointer;
 }
-
+::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-page,
+::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-prev,
+::v-deep .p-datatable-paginator-bottom .p-paginator-content .p-paginator-next {
+  min-width: 20px !important;
+  min-height: 20px !important;
+  margin: 6px !important;
+  padding: 12px !important;
+  font-size: 1em !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
 .btn-clear:hover {
   background-color: #903c3c;
 }
